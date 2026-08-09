@@ -1,0 +1,50 @@
+---
+- name: Configure server and prepare application deployment
+  hosts: local
+  become: false
+  gather_facts: true
+
+  tasks:
+    - name: Print system information
+      debug:
+        msg: "Configuring host: {{ ansible_hostname }} running {{ ansible_distribution | default('Unknown OS') }}"
+
+    - name: Check if Docker is installed
+      command: docker --version
+      register: docker_check
+      ignore_errors: true
+      changed_when: false
+
+    - name: Show Docker version (if installed)
+      debug:
+        msg: "{{ docker_check.stdout }}"
+      when: docker_check.rc == 0
+
+    - name: Warn if Docker is not installed
+      debug:
+        msg: "Docker is not installed on this host. Please install Docker before proceeding."
+      when: docker_check.rc != 0
+
+    - name: Create application directory
+      file:
+        path: "/tmp/deployed-app"
+        state: directory
+        mode: '0755'
+
+    - name: Copy application files to deployment directory
+      copy:
+        src: "{{ item }}"
+        dest: "/tmp/deployed-app/{{ item | basename }}"
+        mode: '0644'
+      loop:
+        - "{{ playbook_dir }}/../app/app.py"
+        - "{{ playbook_dir }}/../app/requirements.txt"
+
+    - name: Confirm deployment files are in place
+      stat:
+        path: "/tmp/deployed-app/app.py"
+      register: app_file
+
+    - name: Report deployment status
+      debug:
+        msg: "Application files successfully staged for deployment: {{ app_file.stat.exists }}"

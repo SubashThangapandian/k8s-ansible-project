@@ -80,3 +80,6 @@ ansible-playbook -i ansible/inventory.ini ansible/playbook.yml
 ## Health Checks
 The application exposes a `/health` endpoint used by Kubernetes liveness and
 readiness probes to automatically detect and recover from failures.
+
+## Live Proof
+- Docker Hub Image: https://hub.docker.com/r/subash309206/k8s-ansible-app

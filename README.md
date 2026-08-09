@@ -57,8 +57,12 @@ kubectl get service k8s-ansible-app-service
 ```
 
 ### 4. Access the application
-```
-http://localhost:30080
+Due to Docker Desktop's networking setup on Windows, NodePort may not be
+directly accessible. Use port-forward instead:
+
+kubectl port-forward service/k8s-ansible-app-service 5000:5000
+
+Then visit: http://localhost:5000
 ```
 
 ### 5. Perform a rolling update
